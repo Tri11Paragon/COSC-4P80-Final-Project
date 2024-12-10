@@ -1,0 +1,6 @@
+cmake-build*/
+build/
+out/
+./cmake-build*/
+./build/
+./out/

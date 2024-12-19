@@ -227,13 +227,19 @@ namespace fp
         image_t train_image{train_images, train_labels};
         image_t test_image{test_images, test_labels};
 
+        // using net_type = loss_multiclass_log<
+        //                                 fc<10,
+        //                                 relu<fc<84,
+        //                                 relu<fc<120,
+        //                                 max_pool<2,2,2,2,relu<con<16,5,5,1,1,
+        //                                 max_pool<2,2,2,2,relu<con<6,5,5,1,1,
+        //                                 input<matrix<blt::u8>>>>>>>>>>>>>>;
+
         using net_type = loss_multiclass_log<
                                         fc<10,
-                                        relu<fc<84,
-                                        relu<fc<120,
-                                        max_pool<2,2,2,2,relu<con<16,5,5,1,1,
-                                        max_pool<2,2,2,2,relu<con<6,5,5,1,1,
-                                        input<matrix<blt::u8>>>>>>>>>>>>>>;
+                                        sig<fc<84,
+                                        sig<fc<120,
+                                        input<matrix<blt::u8>>>>>>>>;
 
         net_type network{};
 
@@ -243,10 +249,9 @@ namespace fp
         trainer.set_mini_batch_size(128);
         trainer.be_verbose();
 
-        trainer.set_synchronization_file("mnist_sync", std::chrono::seconds(20));
+        // trainer.set_synchronization_file("mnist_sync", std::chrono::seconds(20));
 
         trainer.train(train_image.get_image_data(), train_image.get_image_labels());
-        trainer.train_one_step(train_image.get_image_data(), train_image.get_image_labels());
 
         network.clean();
         serialize("mnist_network.dat") << network;

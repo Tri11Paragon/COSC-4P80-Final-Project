@@ -211,20 +211,131 @@ namespace fp
 
     struct batch_stats_t
     {
-        blt::u64 batch_size;
+        blt::u64 hits;
+        blt::u64 misses;
 
+        friend std::ofstream& operator<<(std::ofstream& file, const batch_stats_t& stats)
+        {
+            file << stats.hits << ',' << stats.misses;
+            return file;
+        }
+
+        friend std::ifstream& operator>>(std::ifstream& file, batch_stats_t& stats)
+        {
+            file >> stats.hits;
+            file.ignore();
+            file >> stats.misses;
+            return file;
+        }
+
+        batch_stats_t& operator+=(const batch_stats_t& stats)
+        {
+            hits += stats.hits;
+            misses += stats.misses;
+            return *this;
+        }
+
+        batch_stats_t& operator/=(const blt::u64 divisor)
+        {
+            hits /= divisor;
+            misses /= divisor;
+            return *this;
+        }
+    };
+
+    struct epoch_stats_t
+    {
+        batch_stats_t test_results;
+        double average_loss;
+        double learn_rate;
+
+        friend std::ofstream& operator<<(std::ofstream& file, const epoch_stats_t& stats)
+        {
+            file << stats.test_results << ',' << stats.average_loss << ',' << stats.learn_rate;
+            return file;
+        }
+
+        friend std::ifstream& operator>>(std::ifstream& file, epoch_stats_t& stats)
+        {
+            file >> stats.test_results;
+            file.ignore();
+            file >> stats.average_loss;
+            file.ignore();
+            file >> stats.learn_rate;
+            return file;
+        }
+
+        epoch_stats_t& operator+=(const epoch_stats_t& stats)
+        {
+            test_results += stats.test_results;
+            average_loss += stats.average_loss;
+            learn_rate += stats.learn_rate;
+            return *this;
+        }
+
+        epoch_stats_t& operator/=(const blt::u64 divisor)
+        {
+            test_results /= divisor;
+            average_loss /= static_cast<double>(divisor);
+            learn_rate /= static_cast<double>(divisor);
+            return *this;
+        }
     };
 
     struct network_stats_t
     {
+        std::vector<epoch_stats_t> epoch_stats;
+
+        friend std::ofstream& operator<<(std::ofstream& file, const network_stats_t& stats)
+        {
+            file << stats.epoch_stats.size();
+            for (const auto& v : stats.epoch_stats)
+                file << v << "\n";
+            return file;
+        }
+
+        friend std::ifstream& operator>>(std::ifstream& file, network_stats_t& stats)
+        {
+            blt::size_t size;
+            file >> size;
+            for (blt::size_t i = 0; i < size; i++)
+            {
+                stats.epoch_stats.emplace_back();
+                file >> stats.epoch_stats.back();
+                file.ignore();
+            }
+            return file;
+        }
+
+
     };
 
-    template<typename NetworkType>
-    batch_stats_t test_batch(NetworkType& network, image_t::data_iterator begin, image_t::data_iterator end, image_t::label_iterator lbegin)
+    template <blt::i64 batch_size = 128, typename NetworkType>
+    batch_stats_t test_batch(NetworkType& network, image_t::data_iterator begin, const image_t::data_iterator end, image_t::label_iterator lbegin)
     {
-        batch_stats_t stats;
+        batch_stats_t stats{};
 
+        std::array<image_t::label_iterator::value_type, batch_size> output_labels{};
 
+        auto amount_remaining = std::distance(begin, end);
+
+        while (amount_remaining != 0)
+        {
+            const auto batch = std::min(amount_remaining, batch_size);
+            network(begin, begin + batch, output_labels.begin());
+
+            for (auto [predicted, expected] : blt::iterate(output_labels.begin(), output_labels.begin() + batch).zip(lbegin, lbegin + batch))
+            {
+                if (predicted == expected)
+                    ++stats.hits;
+                else
+                    ++stats.misses;
+            }
+
+            begin += batch;
+            lbegin += batch;
+            amount_remaining -= batch;
+        }
 
         return stats;
     }
@@ -235,23 +346,14 @@ namespace fp
         const idx_file_t test_images{"../problems/mnist/t10k-images.idx3-ubyte"};
         const idx_file_t test_labels{"../problems/mnist/t10k-labels.idx1-ubyte"};
 
-        const auto test_samples = test_images.get_dimensions()[0];
-
         const image_t test_image{test_images, test_labels};
 
-        const auto predicted_labels = network(test_image.get_image_data());
-        int num_right = 0;
-        int num_wrong = 0;
-        for (size_t i = 0; i < test_image.get_image_data().size(); ++i)
-        {
-            if (predicted_labels[i] == test_image.get_image_labels()[i])
-                ++num_right;
-            else
-                ++num_wrong;
-        }
-        std::cout << "testing num_right: " << num_right << std::endl;
-        std::cout << "testing num_wrong: " << num_wrong << std::endl;
-        std::cout << "testing accuracy:  " << num_right / static_cast<double>(num_right + num_wrong) << std::endl;
+        auto test_results = test_batch(network, test_image.get_image_data().begin(), test_image.get_image_data().end(),
+                                       test_image.get_image_labels().begin());
+
+        BLT_INFO("Testing hits: %lu", test_results.hits);
+        BLT_INFO("Testing misses: %lu", test_results.misses);
+        BLT_INFO("Testing accuracy: %lf", test_results.hits / static_cast<double>(test_results.hits + test_results.misses));
     }
 
     template <typename NetworkType>
@@ -274,7 +376,7 @@ namespace fp
 
         blt::size_t epochs = 0;
         blt::ptrdiff_t epoch_pos = 0;
-        for (; epochs < trainer.getmax_epochs() && trainer.get_learning_rate() >= trainer.get_min_learning_rate(); epochs++)
+        for (; epochs < trainer.get_max_num_epochs() && trainer.get_learning_rate() >= trainer.get_min_learning_rate(); epochs++)
         {
             auto& data = train_image.get_image_data();
             auto& labels = train_image.get_image_labels();
@@ -291,28 +393,39 @@ namespace fp
                                        data.begin() + end, labels.begin() + begin);
             }
             epoch_pos = 0;
-            trainer.wait_for_thread_to_pause();
+            BLT_DEBUG("Trained an epoch (%ld/%ld)   learn rate %lf    average loss %lf", epochs, trainer.get_max_num_epochs(),
+                      trainer.get_learning_rate(), trainer.get_average_loss());
+
+            // sync and test
+            trainer.get_net(dlib::force_flush_to_disk::no);
+
+            epoch_stats_t epoch_stats{};
+            epoch_stats.test_results = test_batch(network, train_image.get_image_data().begin(), train_image.get_image_data().end(),
+                                                  train_image.get_image_labels().begin());
+            epoch_stats.average_loss = trainer.get_average_loss();
+            epoch_stats.learn_rate = trainer.get_learning_rate();
+
+            BLT_DEBUG("\t\tHits: %lu\tMisses: %lu\tAccuracy: %lf", epoch_stats.test_results.hits, epoch_stats.test_results.misses,
+                      epoch_stats.test_results.hits / static_cast<double>(epoch_stats.test_results.hits + epoch_stats.test_results.misses));
+
+            stats.epoch_stats.push_back(epoch_stats);
         }
+
+        BLT_INFO("Finished Training");
+
+        // sync
+        trainer.get_net();
+        network.clean();
 
         // trainer.train(train_image.get_image_data(), train_image.get_image_labels());
-
-        network.clean();
         dlib::serialize("mnist_network_" + ident + ".dat") << network;
 
-        const std::vector<unsigned long> predicted_labels = network(train_image.get_image_data());
-        int num_right = 0;
-        int num_wrong = 0;
-        // And then let's see if it classified them correctly.
-        for (size_t i = 0; i < train_image.get_image_data().size(); ++i)
-        {
-            if (predicted_labels[i] == train_image.get_image_labels()[i])
-                ++num_right;
-            else
-                ++num_wrong;
-        }
-        std::cout << "training num_right: " << num_right << std::endl;
-        std::cout << "training num_wrong: " << num_wrong << std::endl;
-        std::cout << "training accuracy:  " << num_right / static_cast<double>(num_right + num_wrong) << std::endl;
+        auto test_results = test_batch(network, train_image.get_image_data().begin(), train_image.get_image_data().end(),
+                                       train_image.get_image_labels().begin());
+
+        BLT_INFO("Training hits: %lu", test_results.hits);
+        BLT_INFO("Training misses: %lu", test_results.misses);
+        BLT_INFO("Training accuracy: %lf", test_results.hits / static_cast<double>(test_results.hits + test_results.misses));
 
         return stats;
     }
@@ -342,5 +455,12 @@ namespace fp
                sig<fc<84,
                       sig<fc<120,
                              input<matrix<blt::u8>>>>>>>>;
+
+        net_type test_net;
+        const auto stats = train_network("fc_nn", test_net);
+        std::ofstream out_file{"fc_nn.csv"};
+        out_file << stats;
+
+        test_network(test_net);
     }
 }

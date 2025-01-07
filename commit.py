@@ -36,7 +36,7 @@ else:
 	if len(str(XDG_CONFIG_HOME)) == 0:
 		XDG_CONFIG_HOME = USER_HOME
 	CONFIG_FILE_DIRECTORY = XDG_CONFIG_HOME / "blt"
-	CONFIG_FILE_LOCATION = CONFIG_FILE_DIRECTORY / "commit_config.env"
+	CONFIG_FILE_LOCATION = CONFIG_FILE_DIRECTORY / "commit_config.json"
 
 class Config:
 	def __init__(self):

@@ -21,7 +21,7 @@
 
 namespace fp
 {
-    void run_mnist();
+    void run_mnist(int argc, const char** argv);
 }
 
 #endif //MNIST_H

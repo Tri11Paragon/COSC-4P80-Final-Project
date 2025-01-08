@@ -43,7 +43,7 @@ namespace fp
     void run_python_line_graph(const std::string& title, const std::string& output_file, const std::string& csv1, const std::string& csv2,
                                const blt::size_t pos_forward, const blt::size_t pos_deep)
     {
-        const auto command = "python3 " + python_dual_stacked_graph_program + " '" + title + "' '" + output_file + "' '" + csv1 + "' '" + csv2 + "' "
+        const auto command = "python3 '" + python_dual_stacked_graph_program + "' '" + title + "' '" + output_file + "' '" + csv1 + "' '" + csv2 + "' "
             + std::to_string(pos_forward) + " " + std::to_string(pos_deep);
         BLT_TRACE("Running %s", command.c_str());
         std::system(command.c_str());

@@ -30,6 +30,8 @@
 
 namespace fp
 {
+    constexpr blt::i64 batch_size = 512;
+
     std::string binary_directory;
     std::string python_dual_stacked_graph_program;
 
@@ -360,7 +362,7 @@ namespace fp
         }
     };
 
-    template <blt::i64 batch_size = 128, typename NetworkType>
+    template <blt::i64 batch_size = batch_size / 2, typename NetworkType>
     batch_stats_t test_batch(NetworkType& network, image_t::data_iterator begin, const image_t::data_iterator end, image_t::label_iterator lbegin)
     {
         batch_stats_t stats{};
@@ -421,7 +423,7 @@ namespace fp
         dlib::dnn_trainer trainer(network);
         trainer.set_learning_rate(0.01);
         trainer.set_min_learning_rate(0.00001);
-        trainer.set_mini_batch_size(128);
+        trainer.set_mini_batch_size(batch_size);
         trainer.be_verbose();
 
         trainer.set_synchronization_file("mnist_sync_" + ident, std::chrono::seconds(20));

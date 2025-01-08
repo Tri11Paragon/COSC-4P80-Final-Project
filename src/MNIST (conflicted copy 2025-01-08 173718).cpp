@@ -27,7 +27,6 @@
 #include <blt/std/time.h>
 #include <dlib/dnn.h>
 #include <dlib/data_io.h>
-#include <csignal>
 
 namespace fp
 {
@@ -37,7 +36,6 @@ namespace fp
     std::string python_dual_stacked_graph_program;
     std::atomic_bool break_flag = false;
     std::atomic_bool stop_flag = false;
-    std::atomic_bool learn_flag = false;
 
     void run_python_line_graph(const std::string& title, const std::string& output_file, const std::string& csv1, const std::string& csv2,
                                const blt::size_t pos_forward, const blt::size_t pos_deep)
@@ -429,7 +427,7 @@ namespace fp
         trainer.set_min_learning_rate(0.00001);
         trainer.set_mini_batch_size(batch_size);
         trainer.set_max_num_epochs(100);
-        trainer.set_iterations_without_progress_threshold(2000);
+        trainer.set_iterations_without_progress_threshold(300);
         trainer.be_verbose();
 
         trainer.set_synchronization_file("mnist_sync_" + ident, std::chrono::seconds(20));
@@ -448,9 +446,6 @@ namespace fp
 
                 if (end - begin <= 0)
                     break;
-
-                if (learn_flag)
-                    trainer.set_learning_rate(trainer.get_learning_rate() / 10);
 
                 trainer.train_one_step(train_image.get_image_data().begin() + begin,
                                        data.begin() + end, labels.begin() + begin);
@@ -522,8 +517,6 @@ namespace fp
 
         for (blt::i32 i = 0; i < runs; i++)
         {
-            if (stop_flag)
-                break;
             BLT_TRACE("Starting run %d", i);
             auto local_ident = ident + std::to_string(i);
             NetworkType network{};
@@ -586,32 +579,6 @@ namespace fp
         BLT_TRACE(binary_directory);
         BLT_TRACE(python_dual_stacked_graph_program);
         BLT_TRACE("Running with batch size %d", batch_size);
-
-        BLT_TRACE("Installing Signal Handlers");
-        if (std::signal(SIGINT, [](int){
-            BLT_TRACE("Stopping current training");
-            break_flag = true;
-        }) == SIG_ERR)
-        {
-            BLT_ERROR("Failed to replace SIGINT");
-        }
-        if (std::signal(SIGQUIT, [](int)
-        {
-            BLT_TRACE("Exiting Program");
-            stop_flag = true;
-            break_flag = true;
-        }) == SIG_ERR)
-        {
-            BLT_ERROR("Failed to replace SIGQUIT");
-        }
-        if (std::signal(SIGUSR1, [](int)
-        {
-            BLT_TRACE("Decreasing Learn Rate for current training");
-            learn_flag = true;
-        }) == SIG_ERR)
-        {
-            BLT_ERROR("Failed to replace SIGUSR1");
-        }
 
         using namespace dlib;
 

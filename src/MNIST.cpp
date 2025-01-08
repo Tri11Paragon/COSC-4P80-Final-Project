@@ -580,15 +580,22 @@ namespace fp
     void run_mnist(const int argc, const char** argv)
     {
         binary_directory = std::filesystem::current_path();
+        blt::size_t pos = 0;
         if (!blt::string::ends_with(binary_directory, '/'))
+        {
+            pos = binary_directory.find_last_of('/') - 1;
             binary_directory += '/';
-        python_dual_stacked_graph_program = binary_directory + "../graph.py";
+        }
+        else
+            pos = binary_directory.substr(0, binary_directory.size() - 1).find_last_of('/') - 1;
+        python_dual_stacked_graph_program = binary_directory.substr(0, pos) + "/graph.py";
         BLT_TRACE(binary_directory);
         BLT_TRACE(python_dual_stacked_graph_program);
         BLT_TRACE("Running with batch size %d", batch_size);
 
         BLT_TRACE("Installing Signal Handlers");
-        if (std::signal(SIGINT, [](int){
+        if (std::signal(SIGINT, [](int)
+        {
             BLT_TRACE("Stopping current training");
             break_flag = true;
         }) == SIG_ERR)
@@ -623,67 +630,56 @@ namespace fp
         parser.addArgument(
             blt::arg_builder{"-p", "--python"}.setHelp("Only run the python scripts").setAction(blt::arg_action_t::STORE_TRUE).setDefault(false).
                                                build());
-        parser.addArgument(blt::arg_builder{"type"}.setDefault("all").setHelp("Type of network to run [ff, dl, default: all]").build());
+        parser.addArgument(
+            blt::arg_builder{"network"}.setDefault(std::to_string(blt::system::getCurrentTimeMilliseconds())).setHelp("location of network files").
+                                        build());
 
         auto args = parser.parse_args(argc, argv);
 
-        const auto type = blt::string::toLowerCase(args.get<std::string>("type"));
         const auto runs = std::stoi(args.get<std::string>("runs"));
         const auto restore = args.get<bool>("restore");
-        const auto path = binary_directory + std::to_string(blt::system::getCurrentTimeMilliseconds());
+        auto path = binary_directory + args.get<std::string>("network");
 
+        auto [deep_stats, deep_tests] = run_deep_learning_tests(path, runs, restore);
+        auto [forward_stats, forward_tests] = run_feed_forward_tests(path, runs, restore);
 
-        if (type == "all")
+        auto average_forward_size = forward_stats.average_size();
+        auto average_deep_size = deep_stats.average_size();
+
         {
-            auto [deep_stats, deep_tests] = run_deep_learning_tests(path, runs, restore);
-            auto [forward_stats, forward_tests] = run_feed_forward_tests(path, runs, restore);
+            std::ofstream test_results_f{path + "/test_results_table.txt"};
+            test_results_f << "\\begin{figure}" << std::endl;
+            test_results_f << "\t\\begin{tabular}{|c|c|c|c|}" << std::endl;
+            test_results_f << "\t\t\\hline" << std::endl;
+            test_results_f << "\t\tTest & Correct & Incorrect & Accuracy (\\%) \\\\" << std::endl;
+            test_results_f << "\t\t\\hline" << std::endl;
+            auto test_accuracy = forward_tests.hits / static_cast<double>(forward_tests.hits + forward_tests.misses) * 100;
+            test_results_f << "\t\tFeed-Forward & " << forward_tests.hits << " & " << forward_tests.misses << " & " << std::setprecision(2) <<
+                test_accuracy << "\\\\" << std::endl;
+            test_accuracy = deep_tests.hits / static_cast<double>(deep_tests.hits + deep_tests.misses) * 100;
+            test_results_f << "\t\tDeep Learning & " << deep_tests.hits << " & " << deep_tests.misses << " & " << std::setprecision(2) <<
+                test_accuracy << "\\\\" << std::endl;
+            test_results_f << "\t\\end{tabular}" << std::endl;
+            test_results_f << "\\end{figure}" << std::endl;
 
-            auto average_forward_size = forward_stats.average_size();
-            auto average_deep_size = deep_stats.average_size();
+            const auto [forward_epoch_stats] = forward_stats.average_stats();
+            std::ofstream train_forward{path + "/forward_train_results.csv"};
+            train_forward << "Epoch,Loss" << std::endl;
+            for (const auto& [i, v] : blt::enumerate(forward_epoch_stats))
+                train_forward << i << ',' << v.average_loss << std::endl;
 
-            {
-                std::ofstream test_results_f{path + "/test_results_table.txt"};
-                test_results_f << "\\begin{figure}" << std::endl;
-                test_results_f << "\t\\begin{tabular}{|c|c|c|c|}" << std::endl;
-                test_results_f << "\t\t\\hline" << std::endl;
-                test_results_f << "\t\tTest & Correct & Incorrect & Accuracy (\\%) \\\\" << std::endl;
-                test_results_f << "\t\t\\hline" << std::endl;
-                auto test_accuracy = forward_tests.hits / static_cast<double>(forward_tests.hits + forward_tests.misses) * 100;
-                test_results_f << "\t\tFeed-Forward & " << forward_tests.hits << " & " << forward_tests.misses << " & " << std::setprecision(2) <<
-                    test_accuracy << "\\\\" << std::endl;
-                test_accuracy = deep_tests.hits / static_cast<double>(deep_tests.hits + deep_tests.misses) * 100;
-                test_results_f << "\t\tDeep Learning & " << deep_tests.hits << " & " << deep_tests.misses << " & " << std::setprecision(2) <<
-                    test_accuracy << "\\\\" << std::endl;
-                test_results_f << "\t\\end{tabular}" << std::endl;
-                test_results_f << "\\end{figure}" << std::endl;
+            const auto [deep_epoch_stats] = deep_stats.average_stats();
+            std::ofstream train_deep{path + "/deep_train_results.csv"};
+            train_deep << "Epoch,Loss" << std::endl;
+            for (const auto& [i, v] : blt::enumerate(deep_epoch_stats))
+                train_deep << i << ',' << v.average_loss << std::endl;
 
-                const auto [forward_epoch_stats] = forward_stats.average_stats();
-                std::ofstream train_forward{path + "/forward_train_results.csv"};
-                train_forward << "Epoch,Loss" << std::endl;
-                for (const auto& [i, v] : blt::enumerate(forward_epoch_stats))
-                    train_forward << i << ',' << v.average_loss << std::endl;
-
-                const auto [deep_epoch_stats] = deep_stats.average_stats();
-                std::ofstream train_deep{path + "/deep_train_results.csv"};
-                train_deep << "Epoch,Loss" << std::endl;
-                for (const auto& [i, v] : blt::enumerate(deep_epoch_stats))
-                    train_deep << i << ',' << v.average_loss << std::endl;
-
-                std::ofstream average_epochs{path + "/average_epochs.txt"};
-                average_epochs << average_forward_size << "," << average_deep_size << std::endl;
-            }
-
-            run_python_line_graph("Feed-Forward vs Deep Learning, Average Loss over Epochs", "epochs.png", path + "/forward_train_results.csv",
-                                  path + "/deep_train_results.csv", average_forward_size, average_deep_size);
+            std::ofstream average_epochs{path + "/average_epochs.txt"};
+            average_epochs << average_forward_size << "," << average_deep_size << std::endl;
         }
-        else if (type == "ff")
-        {
-            run_feed_forward_tests(path, runs, restore);
-        }
-        else if (type == "df")
-        {
-            run_deep_learning_tests(path, runs, restore);
-        }
+
+        run_python_line_graph("Feed-Forward vs Deep Learning, Average Loss over Epochs", "epochs.png", path + "/forward_train_results.csv",
+                              path + "/deep_train_results.csv", average_forward_size, average_deep_size);
 
         // net_type_dl test_net;
         // const auto stats = train_network("dl_nn", test_net);

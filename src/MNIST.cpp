@@ -508,6 +508,7 @@ namespace fp
 
         for (blt::i32 i = 0; i < runs; i++)
         {
+            BLT_TRACE("Starting run %d", i);
             auto local_ident = ident + std::to_string(i);
             NetworkType network{};
             if (restore)
@@ -542,6 +543,7 @@ namespace fp
                                max_pool<2, 2, 2, 2, relu<con<16, 5, 5, 1, 1,
                                                              max_pool<2, 2, 2, 2, relu<con<6, 5, 5, 1, 1,
                                                                                            input<matrix<blt::u8>>>>>>>>>>>>>>;
+        BLT_TRACE("Running deep learning tests");
         return run_network_tests<net_type_dl>(path, "deep_learning", runs, restore);
     }
 
@@ -555,6 +557,7 @@ namespace fp
                        relu<fc<120,
                                input<matrix<blt::u8>>>>>>>>;
 
+        BLT_TRACE("Running feed forward tests");
         return run_network_tests<net_type_ff>(path, "feed_forward", runs, restore);
     }
 
@@ -566,6 +569,7 @@ namespace fp
         python_dual_stacked_graph_program = binary_directory + "../graph.py";
         BLT_TRACE(binary_directory);
         BLT_TRACE(python_dual_stacked_graph_program);
+        BLT_TRACE("Running with batch size %d", batch_size);
 
         using namespace dlib;
 

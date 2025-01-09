@@ -1,0 +1,9 @@
+\begin{figure}
+	\begin{tabular}{|c|c|c|c|}
+		\hline
+		Test & Correct & Incorrect & Accuracy (\%) \\
+		\hline
+		Feed-Forward & 9588 & 411 & 96\\
+		Deep Learning & 9887 & 112 & 99\\
+	\end{tabular}
+\end{figure}

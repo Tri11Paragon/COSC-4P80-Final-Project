@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2023.10.9)  9 JAN 2025 14:40
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2023.10.9)  9 JAN 2025 15:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -806,7 +806,7 @@ Package hyperref Info: Link coloring OFF on input line 57.
 (/usr/share/texlive/texmf-dist/tex/latex/arabtex/alocal.sty
 (ArabTeX) 3.11 local stub, 26.02.2006)
 (ArabTeX) version 3.11s (02.07.2006): second phase of patching)
-<assets/brock.jpg, id=15, 1053.9375pt x 638.385pt>
+<assets/brock.jpg, id=27, 1053.9375pt x 638.385pt>
 File: assets/brock.jpg Graphic file (type jpg)
 <use assets/brock.jpg>
 Package pdftex.def Info: assets/brock.jpg  used on input line 67.
@@ -835,7 +835,17 @@ l.94 	\include{chapters/abstract}
                                   [1
 
 
-] (./report.toc)
+] (./report.toc
+LaTeX Font Info:    Trying to load font information for U+msa on input line 8.
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Trying to load font information for U+msb on input line 8.
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+))
 \tf@toc=\write7
 \openout7 = `report.toc'.
 
@@ -850,9 +860,19 @@ l.94 	\include{chapters/abstract}
 
 (./chapters/introduction_and_motivation.tex
 Chapter 1.
-) [1
+
+Overfull \hbox (4.3079pt too wide) in paragraph at lines 2--3
+ [][] \T1/cmr/m/n/12 As pre-vi-ously men-tioned, deep learn-ing com-bines fea-t
+ure ex-trac-tion through
+ []
+
+[1
 
 
+
+]
+Chapter 2.
+) [2
 
 ]
 \openout2 = `chapters/results.aux'.
@@ -1003,6 +1023,8 @@ fc-english.def    2016/01/12
   apatch.sty    2006/07/02  3.11s last minute patches 
 assets/brock.jpg
 chapters/abstract.tex
+    umsa.fd    2013/01/14 v3.01 AMS symbols A
+    umsb.fd    2013/01/14 v3.01 AMS symbols B
 chapters/introduction_and_motivation.tex
 chapters/results.tex
 chapters/conclusion.tex
@@ -1012,30 +1034,44 @@ chapters/conclusion.tex
 LaTeX Font Warning: Size substitutions with differences
 (Font)              up to 0.72pt have occurred.
 
-Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 209B4CB4B9B549162E11D42496BF7773;238.
+
+Package rerunfilecheck Warning: File `report.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `report.out':
+(rerunfilecheck)             Before: CAA4FAEE2960169512419C2B4C6CA732;625
+(rerunfilecheck)             After:  7D3E0977AEBCA33FB26B3D757A6C75B2;608.
  )
 (\end occurred inside a group at level 1)
 
 ### semi simple group (level 1) entered at line 57 (\begingroup)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 19508 strings out of 476091
- 321817 string characters out of 5794081
+ 19569 strings out of 476091
+ 322656 string characters out of 5794081
  1855330 words of memory out of 5000000
- 39470 multiletter control sequences out of 15000+600000
- 518668 words of font info for 41 fonts, out of 8000000 for 9000
+ 39500 multiletter control sequences out of 15000+600000
+ 523015 words of font info for 58 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 94i,5n,92p,1627b,2026s stack positions out of 10000i,1000n,20000p,200000b,200000s
-{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}</us
-r/share/texmf/fonts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/
-type1/public/cm-super/sfbx1728.pfb></usr/share/texmf/fonts/type1/public/cm-supe
-r/sfbx2488.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr
-/share/texmf/fonts/type1/public/cm-super/sfrm1440.pfb>
-Output written on report.pdf (4 pages, 122852 bytes).
+ 94i,5n,92p,1010b,2028s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+pdfTeX warning (dest): name{subsection.2.0.2} has been referenced but does not 
+exist, replaced by a fixed one
+
+
+pdfTeX warning (dest): name{subsection.2.0.1} has been referenced but does not 
+exist, replaced by a fixed one
+
+{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texmf/fo
+nts/type1/public/cm-super/sfbx1200.pfb></usr/share/texmf/fonts/type1/public/cm-
+super/sfbx1728.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfbx2488.pfb><
+/usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fon
+ts/type1/public/cm-super/sfrm1440.pfb>
+Output written on report.pdf (5 pages, 129391 bytes).
 PDF statistics:
- 71 PDF objects out of 1000 (max. 8388607)
- 53 compressed objects within 1 object stream
- 8 named destinations out of 1000 (max. 500000)
- 34 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 103 PDF objects out of 1000 (max. 8388607)
+ 84 compressed objects within 1 object stream
+ 20 named destinations out of 1000 (max. 500000)
+ 58 words of extra memory for PDF output out of 10000 (max. 10000000)
 

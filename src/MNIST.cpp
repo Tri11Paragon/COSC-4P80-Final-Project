@@ -617,7 +617,8 @@ namespace fp
             std::exit(-1);
         }
 
-        state << i;
+        // user can skip this if required.
+        state << i - 1;
         state << '\n';
         state << last_epoch_save;
         state << '\n';

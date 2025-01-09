@@ -31,7 +31,7 @@ def plot_stacked_graph(title, output, csv_file1, csv_file2, position, position2)
 
     ax.set_xlabel(x1_label)
     ax.set_ylabel(y1_label)
-    ax.legend()
+    # ax.legend()
     ax.set_title(title)
 
     plt.savefig(output)

@@ -638,12 +638,15 @@ namespace fp
         state << '\n';
         state << stats;
         state << '\n';
-        state << static_cast<blt::size_t>(std::max(static_cast<blt::i64>(test_stats.size()) - 1, 0l));
+        blt::i32 remove = 0;
+        if (stop_flag)
+            remove = 1;
+        state << static_cast<blt::size_t>(std::max(static_cast<blt::i64>(test_stats.size()) - remove, 0l));
         state << '\n';
         if (!test_stats.empty())
         {
             // the last test stat will be recalculated on restore. keeping it is an error.
-            for (const auto& v : blt::iterate(test_stats).take(test_stats.size() - 1))
+            for (const auto& v : blt::iterate(test_stats).take(test_stats.size() - remove))
             {
                 state << v;
                 state << '\n';

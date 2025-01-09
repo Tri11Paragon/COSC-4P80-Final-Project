@@ -40,7 +40,7 @@ def plot_stacked_graph(title, output, csv_file1, csv_file2, position, position2)
     plt.savefig(output)
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 7:
         print("Usage: python script.py <title> <output_file> <csv_file1> <csv_file2> <position_feed_forward> <position_deep>")
         sys.exit(1)
 

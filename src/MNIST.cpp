@@ -312,6 +312,7 @@ namespace fp
         friend std::ofstream& operator<<(std::ofstream& file, const network_stats_t& stats)
         {
             file << stats.epoch_stats.size();
+            file << '\n';
             for (const auto& v : stats.epoch_stats)
                 file << v << "\n";
             return file;
@@ -321,6 +322,7 @@ namespace fp
         {
             blt::size_t size;
             file >> size;
+            file.ignore();
             for (blt::size_t i = 0; i < size; i++)
             {
                 stats.epoch_stats.emplace_back();
@@ -369,6 +371,7 @@ namespace fp
         friend std::ofstream& operator<<(std::ofstream& file, const network_average_stats_t& stats)
         {
             file << stats.run_stats.size();
+            file << '\n';
             for (const auto& v : stats.run_stats)
                 file << v << "---\n";
             return file;
@@ -378,6 +381,7 @@ namespace fp
         {
             blt::size_t size;
             file >> size;
+            file.ignore();
             for (blt::size_t i = 0; i < size; i++)
             {
                 stats.run_stats.emplace_back();
@@ -556,16 +560,21 @@ namespace fp
             }
 
             state >> i;
+            state.ignore();
             blt::i64 load_epoch = 0;
             state >> load_epoch;
+            state.ignore();
             last_epoch = load_epoch;
             state >> stats;
+            state.ignore();
             blt::size_t test_stats_size = 0;
             state >> test_stats_size;
+            state.ignore();
             for (blt::size_t _ = 0; _ < test_stats_size; _++)
             {
                 test_stats.emplace_back();
                 state >> test_stats.back();
+                state.ignore();
             }
         }
 
@@ -609,11 +618,18 @@ namespace fp
         }
 
         state << i;
+        state << '\n';
         state << last_epoch_save;
+        state << '\n';
         state << stats;
+        state << '\n';
         state << test_stats.size();
+        state << '\n';
         for (const auto& v : test_stats)
+        {
             state << v;
+            state << '\n';
+        }
 
         return {stats, average};
     }

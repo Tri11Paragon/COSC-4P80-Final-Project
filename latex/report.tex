@@ -1,0 +1,111 @@
+\documentclass[12pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{ragged2e}
+\usepackage{arabtex}
+\usepackage{utf8}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{svg}
+\usepackage{subcaption}
+\usepackage{acronym}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[noadjust]{cite}
+\usepackage[section]{placeins}
+\usepackage{mathtools}
+\usepackage{xcolor}
+
+\usepackage{datetime}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+
+\newcommand{\Var}[1]{\textcolor{blue}{#1}} % Color variables in blue
+
+\usepackage[hyperfootnotes,hidelinks]{hyperref}
+\hypersetup{
+	linktoc=all
+}
+
+\renewcommand{\contentsname}{Table of Contents}
+
+%----------EDIT COVER INFO HERE -----------------%
+
+\def \LOGOPATH {assets/brock.jpg}
+\def \UNIVERSITY {Brock University}
+\def \FACULTY {Faculty of Mathematics \& Science}
+\def \DEPARTEMENT {Department of Computer Science}
+\def \PROJECTTITLE {COSC 4P80 Final Project}
+\def \PROJECTSUBTITLE {A Comparative Analysis of Deep Learning and Feed-Forward Neural Networks}
+\def \STUDENTA {Brett Terpstra}
+\def \STUDENTB {Steve Mastrokalos}
+\def \STUDENTNOA {6920201}
+\def \STUDENTNOB {7276900}
+\def \STUDENTEMAILA {bt19ex@brocku.ca}
+\def \STUDENTEMAILB {sm21ks@brocku.ca}
+\def \SUPERVISOR {Dave Bockus}
+
+%------------------------------------------------%
+
+\newdateformat{monthyeardate}{%
+	\monthname[\THEMONTH], \THEYEAR}
+
+\begin{document}
+	\setlength{\parindent}{0em}
+	\setlength{\parskip}{0.5em}
+	
+	\pagenumbering{Roman}
+	
+	
+	\begin{titlepage}
+		\vfill
+		\begin{center}
+			\includegraphics[width=0.6\textwidth]{\LOGOPATH} \\
+			\fontsize{14pt}{14pt}\selectfont
+			\vfill
+			\UNIVERSITY \\
+			\FACULTY \\
+			\DEPARTEMENT \\
+			\vfill
+			\fontsize{18pt}{18pt}\selectfont
+			\textbf{\PROJECTTITLE}
+			\vfill
+			\fontsize{14pt}{14pt}\selectfont
+			Prepared By: \\
+			\STUDENTA \ \#\STUDENTNOA \\
+			\STUDENTEMAILA \\
+			\vfill
+			\STUDENTB \ \#\STUDENTNOB \\
+			\STUDENTEMAILB \\
+			\vfill
+			Instructor: \\
+			\SUPERVISOR
+			\vfill
+			\vfill
+			\vfill
+			\monthyeardate\today
+		\end{center}
+	\end{titlepage}
+	
+	\include{chapters/abstract}
+
+	\cleardoublepage \phantomsection \addcontentsline{toc}{chapter}{Table of Contents}
+	\tableofcontents
+	
+	\cleardoublepage
+	
+	\setlength{\parindent}{0em}
+	\setlength{\parskip}{0.5em}
+	
+	\pagenumbering{arabic}
+	
+	\include{chapters/introduction_and_motivation}
+	
+	\include{chapters/results}
+	
+	\include{chapters/conclusion}
+\end{document}

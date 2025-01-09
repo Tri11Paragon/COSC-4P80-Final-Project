@@ -610,7 +610,7 @@ namespace fp
                 {
                     // add in all the new epochs
                     auto& vec = stats.run_stats.back();
-                    vec.epoch_stats.insert(vec.epoch_stats.begin(), stat.epoch_stats.begin(), stat.epoch_stats.end());
+                    vec.epoch_stats.insert(vec.epoch_stats.end(), stat.epoch_stats.begin(), stat.epoch_stats.end());
                 } else
                     stats += stat;
             }
@@ -638,12 +638,16 @@ namespace fp
         state << '\n';
         state << stats;
         state << '\n';
-        state << test_stats.size();
+        state << static_cast<blt::size_t>(std::max(static_cast<blt::i64>(test_stats.size()) - 1, 0l));
         state << '\n';
-        for (const auto& v : blt::iterate(test_stats).take(test_stats.size() - 1))
+        if (!test_stats.empty())
         {
-            state << v;
-            state << '\n';
+            // the last test stat will be recalculated on restore. keeping it is an error.
+            for (const auto& v : blt::iterate(test_stats).take(test_stats.size() - 1))
+            {
+                state << v;
+                state << '\n';
+            }
         }
 
         return {stats, average};
@@ -787,6 +791,7 @@ namespace fp
             average_epochs << average_forward_size << "," << average_deep_size << std::endl;
         }
 
+        BLT_INFO("Running python!");
         run_python_line_graph("Feed-Forward vs Deep Learning, Average Loss over Epochs", "epochs.png", path + "/forward_train_results.csv",
                               path + "/deep_train_results.csv", average_forward_size, average_deep_size);
 

@@ -684,6 +684,34 @@ namespace fp
         return run_network_tests<net_type_ff>(path, "feed_forward", runs, restore);
     }
 
+    auto run_deep_learning_tests_v2(const std::string& path, const blt::i32 runs, const bool restore)
+    {
+        using namespace dlib;
+        using net_type_dl = loss_multiclass_log<
+            fc<10,
+               relu<fc<16,
+                       relu<fc<16,
+                               max_pool<2, 2, 2, 2, relu<con<16, 5, 5, 1, 1,
+                                                             max_pool<2, 2, 2, 2, relu<con<6, 5, 5, 1, 1,
+                                                                                           input<matrix<blt::u8>>>>>>>>>>>>>>;
+        BLT_TRACE("Running deep learning tests");
+        return run_network_tests<net_type_dl>(path, "deep_learning", runs, restore);
+    }
+
+    auto run_feed_forward_tests_v2(const std::string& path, const blt::i32 runs, const bool restore)
+    {
+        using namespace dlib;
+
+        using net_type_ff = loss_multiclass_log<
+            fc<10,
+               relu<fc<16,
+                       relu<fc<16,
+                               input<matrix<blt::u8>>>>>>>>;
+
+        BLT_TRACE("Running feed forward tests");
+        return run_network_tests<net_type_ff>(path, "feed_forward", runs, restore);
+    }
+
     void run_mnist(const int argc, const char** argv)
     {
         binary_directory = std::filesystem::current_path();
@@ -756,8 +784,10 @@ namespace fp
         const auto restore = args.get<bool>("restore");
         auto path = binary_directory + args.get<std::string>("network");
 
-        auto [deep_stats, deep_tests] = run_deep_learning_tests(path, runs, restore);
-        auto [forward_stats, forward_tests] = run_feed_forward_tests(path, runs, restore);
+        // auto [deep_stats, deep_tests] = run_deep_learning_tests(path, runs, restore);
+        auto [forward_stats, forward_tests] = run_feed_forward_tests_v2(path, runs, restore);
+        auto [deep_stats, deep_tests] = run_deep_learning_tests_v2(path, runs, restore);
+        // auto [forward_stats, forward_tests] = run_feed_forward_tests(path, runs, restore);
 
         auto average_forward_size = forward_stats.average_size();
         auto average_deep_size = deep_stats.average_size();

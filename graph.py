@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import sys
 
-def plot_stacked_graph(title, output, csv_file1, csv_file2, position, position2):
+def plot_stacked_graph(title, output, csv_file1, csv_file2, name1, name2):
     # Read CSV files
     data1 = pd.read_csv(csv_file1, header=0)
     data2 = pd.read_csv(csv_file2, header=0)
@@ -18,27 +18,27 @@ def plot_stacked_graph(title, output, csv_file1, csv_file2, position, position2)
     # Create the plot
     fig, ax = plt.subplots()
 
-    ax.plot(x1, y1, label=f"{csv_file1}")
-    ax.plot(x2, y2, label=f"{csv_file2}")
+    ax.plot(x1, y1, label=f"{name1}")
+    ax.plot(x2, y2, label=f"{name2}")
     
-    if position < 2 ** 32:
-        ax.axvline(x=position, color='red', linestyle='--')
-        ax.text(position, ax.get_ylim()[1] * 0.95, f"Feed-forward average # of epochs", color='red', fontsize=10, ha='right', va='top', backgroundcolor='white')
+    # if position < 2 ** 32:
+    #     ax.axvline(x=position, color='red', linestyle='--')
+    #     ax.text(position, ax.get_ylim()[1] * 0.95, f"Feed-forward average # of epochs", color='red', fontsize=10, ha='right', va='top', backgroundcolor='white')
         
-    if position2 < 2 ** 32:
-        ax.axvline(x=position2, color='red', linestyle='--')
-        ax.text(position2, ax.get_ylim()[1] * 0.95, f"Deep learning average # of epochs", color='red', fontsize=10, ha='right', va='top', backgroundcolor='white')
+    # if position2 < 2 ** 32:
+    #     ax.axvline(x=position2, color='red', linestyle='--')
+    #     ax.text(position2, ax.get_ylim()[1] * 0.95, f"Deep learning average # of epochs", color='red', fontsize=10, ha='right', va='top', backgroundcolor='white')
 
     ax.set_xlabel(x1_label)
     ax.set_ylabel(y1_label)
-    # ax.legend()
-    ax.set_title(title)
+    ax.legend()
+    ax.set_title(title, fontsize=12)
 
     plt.savefig(output)
 
 if __name__ == "__main__":
     if len(sys.argv) != 7:
-        print("Usage: python script.py <title> <output_file> <csv_file1> <csv_file2> <position_feed_forward> <position_deep>")
+        print("Usage: python script.py <title> <output_file> <csv_file1> <csv_file2> <csv1_name> <csv2_name>")
         sys.exit(1)
 
     csv_file1 = sys.argv[3]
@@ -48,4 +48,4 @@ if __name__ == "__main__":
     position = sys.argv[5]
     position2 = sys.argv[6]
 
-    plot_stacked_graph(title, output, csv_file1, csv_file2, int(position), int(position2))
+    plot_stacked_graph(title, output, csv_file1, csv_file2, position, position2)

@@ -48,4 +48,4 @@ if __name__ == "__main__":
     position = sys.argv[5]
     position2 = sys.argv[6]
 
-    plot_stacked_graph(title, output, csv_file1, csv_file2, position, position2)
+    plot_stacked_graph(title, output, csv_file1, csv_file2, int(position), int(position2))

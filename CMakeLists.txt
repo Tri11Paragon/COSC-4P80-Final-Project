@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(COSC-4P80-Final-Project VERSION 0.0.25)
+project(COSC-4P80-Final-Project VERSION 0.0.26)
 
 option(ENABLE_ADDRSAN "Enable the address sanitizer" OFF)
 option(ENABLE_UBSAN "Enable the ub sanitizer" OFF)

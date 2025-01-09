@@ -632,7 +632,7 @@ namespace fp
         }
 
         // user can skip this if required.
-        state << i - 1;
+        state << std::max(i - 1, 0);
         state << '\n';
         state << last_epoch_save;
         state << '\n';

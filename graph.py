@@ -20,9 +20,6 @@ def plot_stacked_graph(title, output, csv_file1, csv_file2, position, position2)
 
     ax.plot(x1, y1, label=f"{csv_file1}")
     ax.plot(x2, y2, label=f"{csv_file2}")
-
-    ax.fill_between(x1, y1, alpha=0.5)
-    ax.fill_between(x2, y2, alpha=0.5)
     
     if position < 2 ** 32:
         ax.axvline(x=position, color='red', linestyle='--')

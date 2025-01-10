@@ -24,8 +24,8 @@ USER_HOME = Path.home()
 ENVIRONMENT_DATA_LOCATION = USER_HOME / ".brett_scripts.env"
 
 if sys.platform.startswith("win"):
-	CONFIG_FILE_DIRECTORY = Path(os.getenv('APPDATA') + "\BLT")
-	CONFIG_FILE_LOCATION = Path(CONFIG_FILE_DIRECTORY + "\commit_config.env")
+	CONFIG_FILE_DIRECTORY = Path(os.getenv('APPDATA') + "\\BLT")
+	CONFIG_FILE_LOCATION = Path(CONFIG_FILE_DIRECTORY + "\\commit_config.env")
 else:
 	XDG_CONFIG_HOME = os.environ.get('XDG_CONFIG_HOME')
 	if XDG_CONFIG_HOME is None:

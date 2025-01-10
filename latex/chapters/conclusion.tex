@@ -1,0 +1,9 @@
+\chapter{Conclusion}
+\paragraph{}
+We have demonstrated that feature extraction through deep learning is a powerful tool for enhancing neural network performance. This is particularly evident when addressing larger-scale problems, such as the ImageNet1000 dataset, which contains one thousand different classification labels. Instead of training a network to process entire images across all labels, feature extraction allows for a more efficient approach, where the network is trained on extracted features rather than raw data. With a sufficiently large and reasonable deep learning network, problems like ImageNet can be effectively tackled, where traditional feed-forward networks would likely struggle.
+\paragraph{}
+However, this work has clear limitations. We only conducted two experiments and did not control for the number of parameters between the feed-forward network and the feature extraction step. Future work could address this by testing with feed-forward networks that have larger and more layers, thus compensating for the parameter discrepancy between the two configurations. Despite these limitations, we believe this paper has successfully shown that feature extraction in deep learning is a valuable and powerful tool.
+
+\bibliographystyle{plain}
+\bibliography{refs}
+\nocite{dlib09}
